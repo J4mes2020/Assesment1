@@ -8,22 +8,23 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class WordGame {
+public class WordGame extends Thread{
 
-    List<String> enteredWords = new ArrayList<>();
+    List<String> words = new ArrayList<>();
     List<String> dictionaryWords = new ArrayList<>();
-    boolean outcome = false;
-    boolean continueORterminate;
     final String defaultError = "Entered word is invalid or does not exist in the dictionary, please try again";
+    boolean outcome = false;
 
-    public WordGame() {
+
+    @Override
+    public void run() {
         gameStart();
     }
 
     private void gameStart() {
 
         addWordsToDictionary("src/main/resources/dictionary.txt");
-        enteredWords.add(dictionaryWords.get(ThreadLocalRandom.current().nextInt(0, dictionaryWords.size())));
+        words.add(dictionaryWords.get(ThreadLocalRandom.current().nextInt(0, dictionaryWords.size())));
         System.out.println("""
                 ======================================================
                 Welcome to the word game
@@ -33,47 +34,49 @@ public class WordGame {
                 ======================================================
                                 
                 Word Game started with:
-                """ + enteredWords.get(0));
+                """ + words.get(0));
 
-        checkWords();
+        wordValid();
     }
 
     private void gameRestart() {
-        enteredWords.clear();
+        words.clear();
+        System.out.println("Game Was restarted due to no input");
         gameStart();
     }
 
-    private void checkWords() {
+    private void wordValid() {
 
-        boolean continueChecking = true;
-        String currentWord;
+        boolean continueORterminate = true;
         Scanner scanner = new Scanner(System.in);
-        String previousWord = enteredWords.get(0);
         System.out.println("\nPlease input your word: ");
         do {
 
             do {
-                currentWord = scanner.nextLine();
+                String currentWord = scanner.nextLine();
+                String previousWord = words.get(0);
                 if (didTheUserEnterAnything(currentWord)) {
                     gameRestart();
                     return;
                 }
                 if (hasWordAlreadyBeenEntered(currentWord)) {
                     System.out.println("GAME OVER - That word has already been entered");
-                    System.exit(0);
+                    System.out.println("FINAL SCORE: " + words.size());
+                    outcome = true;
                     return;
                 }
-                if (isWordValid(currentWord) && isWordInDictionary(currentWord) && doesWordStartsWithLastChar(previousWord, currentWord)) {
+                if (isWordValid(previousWord, currentWord)) {
                     previousWord = currentWord;
-                    System.out.println("Amazing Please enter another word starting with the letter: " + getLastCharOfWord(previousWord));
-                    enteredWords.add(currentWord);
-                    continueChecking = false;
+                    words.add(currentWord);
+                    System.out.println("Currently entered words: " + words);
+                    System.out.println("Please enter another word starting with the letter " + getLastCharOfWord(previousWord) + ": ");
+                    continueORterminate = false;
                 } else {
                     System.out.println(defaultError);
                 }
 
             }
-            while (continueChecking);
+            while (continueORterminate);
         }
         while (!outcome);
     }
@@ -89,17 +92,11 @@ public class WordGame {
         } catch (FileNotFoundException ignored) {}
     }
 
-    private boolean doesWordStartsWithLastChar(String previousWord, String word) {
-        return word.startsWith(String.valueOf(previousWord.charAt(previousWord.length() - 1)));
-    }
     private boolean hasWordAlreadyBeenEntered(String word) {
-        return enteredWords.contains(word);
+        return words.contains(word);
     }
-    private boolean isWordValid(String word) {
-        return word.matches("[A-Za-z]+");
-    }
-    private boolean isWordInDictionary(String word) {
-        return dictionaryWords.contains(word);
+    private boolean isWordValid(String previousWord, String word) {
+        return word.matches("[A-Za-z]+") && dictionaryWords.contains(word) && word.startsWith(String.valueOf(previousWord.charAt(previousWord.length() - 1)));
     }
     private boolean didTheUserEnterAnything(String word) {
         return word.trim().length() == 0 || word.isEmpty();
