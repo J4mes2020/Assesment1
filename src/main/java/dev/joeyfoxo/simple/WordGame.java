@@ -26,16 +26,12 @@ public class WordGame extends Thread {
         words.add(dictionaryWords.get(ThreadLocalRandom.current().nextInt(0, dictionaryWords.size())));
         //Choose a random word from the dictionary from the first index to the size of the dictionary
 
-        System.out.println("""
-                ======================================================
-                Welcome to the word game
-                                
-                Here you will enter a word until you either repeat yourself or\s
-                break the scheme of ending with the same character as you start
-                ======================================================
-                                
-                Word Game started with:
-                """ + words.get(0));
+        System.out.println("======================================================");
+        System.out.println("Welcome to the word game");
+        System.out.println("\nHere you will enter a word until you either repeat yourself or");
+        System.out.println("break the scheme of ending with the same character as you start");
+        System.out.println("======================================================");
+        System.out.println("Word Game started with: " + words.get(0));
 
         wordValid(); //Calling the method to run all the user checks and word checks
     }
