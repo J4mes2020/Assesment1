@@ -45,12 +45,12 @@ public class WordGame extends Thread {
     private void wordValid() {
         boolean continueORterminate = true;
         Scanner scanner = new Scanner(System.in); //Opening the stream for a user input
+        String previousWord = words.get(0);
         System.out.println("\nPlease input your word: ");
         do {
 
             do {
                 String currentWord = scanner.nextLine(); //Stores the user input as a String
-                String previousWord = words.get(0);
                 if (didTheUserEnterAnything(currentWord)) { // If the user didn't enter anything run this code
                     gameRestart(); //Calls the restart method which handles all restarting
                     return;
